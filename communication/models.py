@@ -5,7 +5,7 @@ from users.models import Registrations
 
 class Email_log(models.Model) :
     email_type = models.CharField (max_length=255)
-    time_stamp = models.DateTimeField()
+    time_stamp = models.DateTimeField(auto_now_add=True)
     subject = models.CharField (max_length=255)
     body = models.CharField (max_length=255)
     recipient = models.ForeignKey(

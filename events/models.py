@@ -37,6 +37,7 @@ class Event(models.Model):
     registration_end_time = models.DateTimeField()
     meeting_link = models.URLField()
     seat_limit = models.PositiveIntegerField()
+    unique_link = models.URLField(unique=True)
     category = models.ForeignKey(
         Category, 
         related_name="events", 
