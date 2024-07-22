@@ -1,20 +1,21 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-from events.models import Event
-
 
 class User(AbstractUser):
-    email = models.EmailField(max_length=255, unique=True)
     phone = models.CharField(max_length=32, unique=True, blank=True, null=True)
 
+    email = models.EmailField(max_length=255, unique=True)
+
     USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
 
 
 class Registrations(models.Model):
-    email = models.EmailField(max_length=200, unique=True)
+    email = models.EmailField(max_length=255)
+
     event = models.ForeignKey(
-        Event, 
+        "events.Event", 
         related_name='registrations', 
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )

@@ -1,13 +1,13 @@
 from django.db import models
-from django.contrib.gis.db import models
-
-from users.models import User
+from django.contrib.gis.db import models as model
+# from django.contrib.gis.geos import Point
 
 
 class Category(models.Model):
     category_name = models.CharField(max_length=255)
+    
     parent = models.ForeignKey(
-        "Category", 
+        "events.Category", 
         related_name="categories", 
         null=True, 
         blank=True, 
@@ -27,35 +27,43 @@ class Event(models.Model):
     ]
 
     name = models.CharField(max_length=32)
-    description = models.TextField()
     event_type = models.CharField(
         max_length=20,
         choices=EVENT_TYPE_CHOICES,
         default=ONSITE,
     )
+
     registration_start_time = models.DateTimeField()
     registration_end_time = models.DateTimeField()
+
+    description = models.TextField()
+
     meeting_link = models.URLField()
-    seat_limit = models.PositiveIntegerField()
     unique_link = models.URLField(unique=True)
+
+    seat_limit = models.PositiveIntegerField()
+
     category = models.ForeignKey(
-        Category, 
+        "events.Category", 
         related_name="events", 
         on_delete=models.CASCADE
     )
+
     creator = models.ForeignKey(
-        User, 
+        "users.User", 
         related_name="events", 
         on_delete=models.CASCADE
     )
 
 
-class Schedule(models.Model):
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    location = models.PointField()
+class Schedule(model.Model):
+    start_time = model.DateTimeField()
+    end_time = model.DateTimeField()
+
+    location = model.PointField()
+
     event = models.ForeignKey(
-        Event, 
+        "events.Event", 
         related_name='schedules', 
         on_delete=models.CASCADE
     )
