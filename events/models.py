@@ -15,22 +15,17 @@ class Category(models.Model):
 
 
 class Event(models.Model):
-    ONSITE = 'On-site'
-    ONLINE = 'Online'
-    HYBRID = 'Hybrid'
-    
-    EVENT_TYPE_CHOICES = [
-        (ONSITE, 'On-site'),
-        (ONLINE, 'Online'),
-        (HYBRID, 'Hybrid'),
-    ]
+    class EventType(models.TextChoices):
+        onsite = 'ONSITE', 'Onsite'
+        online = 'ONLINE', 'Online'
+        hybrid = 'HYBRID', 'Hybrid'
 
-    name = models.CharField(max_length=32)
     event_type = models.CharField(
-        max_length=20,
-        choices=EVENT_TYPE_CHOICES,
-        default=ONSITE,
+        max_length=10,
+        choices=EventType.choices,
+        default=EventType.onsite,
     )
+    name = models.CharField(max_length=32)
 
     registration_start_time = models.DateTimeField()
     registration_end_time = models.DateTimeField()
@@ -38,7 +33,6 @@ class Event(models.Model):
     description = models.TextField()
 
     meeting_link = models.URLField()
-    unique_link = models.URLField(unique=True)
 
     seat_limit = models.PositiveIntegerField()
 
