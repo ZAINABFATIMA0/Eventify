@@ -23,3 +23,4 @@ urlpatterns = [
     path("users/", include("users.urls")),
     path("events/", include("events.urls")),
     path("communications/", include("communications.urls")),
+]
