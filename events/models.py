@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.gis.db import models as model
 
+from .choices import EventType
+
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
@@ -15,12 +17,7 @@ class Category(models.Model):
 
 
 class Event(models.Model):
-    class EventType(models.TextChoices):
-        ONSITE = 'ONSITE', 'Onsite'
-        ONLINE = 'ONLINE', 'Online'
-        HYBRID = 'HYBRID', 'Hybrid'
-
-    event_type = models.CharField(
+    type = models.CharField(
         max_length=10,
         choices=EventType.choices,
         default=EventType.ONSITE,
