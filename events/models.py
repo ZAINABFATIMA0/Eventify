@@ -3,7 +3,7 @@ from django.contrib.gis.db import models as model
 
 
 class Category(models.Model):
-    category_name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
     
     parent = models.ForeignKey(
         "events.Category", 
@@ -16,32 +16,27 @@ class Category(models.Model):
 
 class Event(models.Model):
     class EventType(models.TextChoices):
-        onsite = 'ONSITE', 'Onsite'
-        online = 'ONLINE', 'Online'
-        hybrid = 'HYBRID', 'Hybrid'
+        ONSITE = 'ONSITE', 'Onsite'
+        ONLINE = 'ONLINE', 'Online'
+        HYBRID = 'HYBRID', 'Hybrid'
 
     event_type = models.CharField(
         max_length=10,
         choices=EventType.choices,
-        default=EventType.onsite,
+        default=EventType.ONSITE,
     )
     name = models.CharField(max_length=32)
-
     registration_start_time = models.DateTimeField()
     registration_end_time = models.DateTimeField()
-
-    description = models.TextField()
-
-    meeting_link = models.URLField()
-
     seat_limit = models.PositiveIntegerField()
+    description = models.TextField()
+    meeting_link = models.URLField()
 
     category = models.ForeignKey(
         "events.Category", 
         related_name="events", 
         on_delete=models.CASCADE
     )
-
     creator = models.ForeignKey(
         "users.User", 
         related_name="events", 
@@ -52,7 +47,6 @@ class Event(models.Model):
 class Schedule(model.Model):
     start_time = model.DateTimeField()
     end_time = model.DateTimeField()
-
     location = model.PointField()
 
     event = models.ForeignKey(

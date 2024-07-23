@@ -4,14 +4,13 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     phone = models.CharField(max_length=32, unique=True, blank=True, null=True)
-
     email = models.EmailField(max_length=255, unique=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
 
-class Registrations(models.Model):
+class Registration(models.Model):
     email = models.EmailField(max_length=255)
 
     event = models.ForeignKey(
