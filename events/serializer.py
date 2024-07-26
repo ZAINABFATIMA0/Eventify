@@ -26,18 +26,20 @@ class ScheduleSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data['start_time'] >= data['end_time']:
             raise serializers.ValidationError("End time must be after start time.")
-
+        
         if data['location']:
             try:
-                latitude, longitude = map(float, data['location'].split(','))
-                if latitude < -90 or latitude > 90:
-                    raise serializers.ValidationError(
-                        "Latitude must be between -90 and 90."
-                    )
-                if longitude < -180 or longitude > 180:
-                    raise serializers.ValidationError(
-                        "Longitude must be between -180 and 180."
-                    )
+                coordinates = data['location'].get('coordinates')
+                if coordinates and len(coordinates) == 2:
+                    latitude, longitude = coordinates
+                    if latitude < -90 or latitude > 90:
+                        raise serializers.ValidationError(
+                            "Latitude must be between -90 and 90."
+                        )
+                    if longitude < -180 or longitude > 180:
+                        raise serializers.ValidationError(
+                            "Longitude must be between -180 and 180."
+                        )
             except ValueError:
                 raise serializers.ValidationError("Invalid location format.")
 
@@ -61,7 +63,7 @@ class EventSerializer(serializers.ModelSerializer):
 
         if data['type'] in ['HYBRID', 'ONSITE']:
             location = any(
-                isinstance(schedule.get('location'), str)
+                isinstance(schedule.get('location'), dict) and 'coordinates' in schedule['location']
                 for schedule in data['schedules']
             )
             if not location:
@@ -95,8 +97,9 @@ class EventSerializer(serializers.ModelSerializer):
         for schedule_data in schedules_data:
             location_data = schedule_data.pop('location', {})
             try:
-                latitude, longitude = map(float, location_data.split(','))
-                location = Point(latitude, longitude)
+                coordinates = location_data.get('coordinates', [0, 0])
+                latitude, longitude = coordinates
+                location = Point(longitude, latitude)
             except ValueError:
                     location = None
             Schedule.objects.create(**schedule_data, event=event, location=location)
