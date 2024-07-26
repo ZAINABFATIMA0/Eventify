@@ -30,7 +30,7 @@ class ScheduleSerializer(serializers.ModelSerializer):
         if data['location']:
             try:
                 coordinates = data['location'].get('coordinates')
-                if coordinates and len(coordinates) == 2:
+                if len(coordinates) == 2:
                     latitude, longitude = coordinates
                     if latitude < -90 or latitude > 90:
                         raise serializers.ValidationError(

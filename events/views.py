@@ -28,15 +28,6 @@ def list_event(request):
 
     return response
 
-@api_view(['POST'])
-def create_category(request):
-    serializer = CategorySerializer(
-        data=request.data, 
-    )
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response(serializer.data)
-
 @api_view(['GET'])
 def list_category(request):
         categories = Category.objects.all()
