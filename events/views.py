@@ -8,7 +8,8 @@ from .serializer import EventSerializer
 @api_view(['POST'])
 def create_event(request):
     serializer = EventSerializer(
-        data=request.data, context={'creator': request.user}
+        data=request.data, 
+        context={'creator': request.user}
     )
     serializer.is_valid(raise_exception=True)
     serializer.save()

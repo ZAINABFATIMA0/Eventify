@@ -3,10 +3,12 @@ from django.contrib.gis.geos import Point
 
 from .models import Category, Event, Schedule
 
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = '__all__'
+
 
 class ScheduleSerializer(serializers.ModelSerializer):
     location = serializers.JSONField()
@@ -22,16 +24,12 @@ class ScheduleSerializer(serializers.ModelSerializer):
         return representation
 
     def validate(self, data):
-        start_time = data.get('start_time')
-        end_time = data.get('end_time')
-
-        if start_time >= end_time:
+        if data['start_time'] >= data['end_time']:
             raise serializers.ValidationError("End time must be after start time.")
-        
-        location = data.get('location')
-        if location:
+
+        if data['location']:
             try:
-                latitude, longitude = map(float, location.split(','))
+                latitude, longitude = map(float, data['location'].split(','))
                 if latitude < -90 or latitude > 90:
                     raise serializers.ValidationError(
                         "Latitude must be between -90 and 90."
@@ -42,9 +40,10 @@ class ScheduleSerializer(serializers.ModelSerializer):
                     )
             except ValueError:
                 raise serializers.ValidationError("Invalid location format.")
-            
+
         return data
-    
+
+
 class EventSerializer(serializers.ModelSerializer):
     schedules = ScheduleSerializer(many=True)
     category = CategorySerializer()
@@ -55,32 +54,30 @@ class EventSerializer(serializers.ModelSerializer):
         read_only_fields = ['creator']
 
     def validate(self, data):
-        registration_start_time = data.get('registration_start_time')
-        registration_end_time = data.get('registration_end_time')
-        event_type = data.get('type')
-        meeting_link = data.get('meeting_link')
-        schedules = data.get('schedules', [])
-
-        if registration_start_time >= registration_end_time:
+        if data['registration_start_time'] >= data['registration_end_time']:
             raise serializers.ValidationError(
                 "Registration end time should be after registration start time."
             )
-        
-        if event_type in ['HYBRID', 'ONSITE']:
-            location_required = any(
+
+        if data['type'] in ['HYBRID', 'ONSITE']:
+            location = any(
                 isinstance(schedule.get('location'), str)
-                for schedule in schedules
+                for schedule in data['schedules']
             )
-            if not location_required:
+            if not location:
                 raise serializers.ValidationError(
                     "Location with coordinates is required for hybrid and onsite events."
                 )
-        
-        if event_type in ['HYBRID', 'ONLINE'] and not meeting_link:
+
+        if data['type'] in ['HYBRID', 'ONLINE'] and not data['meeting_link']:
             raise serializers.ValidationError(
                 "Meeting link is required for online and hybrid events."
             )
         
+        creator = self.context.get('creator')
+        if not creator:
+            raise serializers.ValidationError("Creator is not provided in context")
+
         return data
 
     def create(self, validated_data):
@@ -89,13 +86,12 @@ class EventSerializer(serializers.ModelSerializer):
         validated_data['category'] = category
 
         creator = self.context.get('creator')
-        if not creator:
-            raise serializers.ValidationError("Creator is not provided in context")
         validated_data['creator'] = creator
+
+        schedules_data = validated_data.pop('schedules')
 
         event = Event.objects.create(**validated_data)
 
-        schedules_data = validated_data.pop('schedules')
         for schedule_data in schedules_data:
             location_data = schedule_data.pop('location', {})
             try:
