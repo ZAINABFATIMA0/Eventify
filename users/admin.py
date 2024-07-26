@@ -7,7 +7,6 @@ from .models import User, Registration
 class UserAdmin(admin.ModelAdmin):
     list_display = (
         'id',
-        'password',
         'last_login',
         'is_superuser',
         'first_name',
