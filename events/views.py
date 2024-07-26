@@ -1,25 +1,44 @@
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from .models import Event
-from .serializer import EventSerializer
+from .models import Category, Event
+from .serializer import CategorySerializer, EventSerializer
 
 @api_view(['POST'])
 def create_event(request):
     serializer = EventSerializer(
         data=request.data, 
-        context={'creator': request.user}
+        context={'request': request}
     )
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    return Response(
-        serializer.validated_data
-    )
+    return Response(serializer.data)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def event_list(request):
+def list_event(request):
     events = Event.objects.all()
-    serializer = EventSerializer(events, many=True)
+
+    paginator = PageNumberPagination()
+    events_page = paginator.paginate_queryset(events, request)
+    serializer = EventSerializer(events_page, many=True)
+    response = paginator.get_paginated_response(serializer.data)
+
+    return response
+
+@api_view(['POST'])
+def create_category(request):
+    serializer = CategorySerializer(
+        data=request.data, 
+    )
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
     return Response(serializer.data)
+
+@api_view(['GET'])
+def list_category(request):
+        categories = Category.objects.all()
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data)

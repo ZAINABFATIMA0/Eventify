@@ -48,7 +48,6 @@ class ScheduleSerializer(serializers.ModelSerializer):
 
 class EventSerializer(serializers.ModelSerializer):
     schedules = ScheduleSerializer(many=True)
-    category = CategorySerializer()
 
     class Meta:
         model = Event
@@ -76,32 +75,27 @@ class EventSerializer(serializers.ModelSerializer):
                 "Meeting link is required for online and hybrid events."
             )
         
-        creator = self.context.get('creator')
-        if not creator:
-            raise serializers.ValidationError("Creator is not provided in context")
-
         return data
 
     def create(self, validated_data):
-        category_data = validated_data.pop('category')
-        category, _ = Category.objects.get_or_create(**category_data)
-        validated_data['category'] = category
-
-        creator = self.context.get('creator')
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            creator = request.user
+        
         validated_data['creator'] = creator
-
-        schedules_data = validated_data.pop('schedules')
+        schedules = validated_data.pop('schedules')
 
         event = Event.objects.create(**validated_data)
 
-        for schedule_data in schedules_data:
-            location_data = schedule_data.pop('location', {})
+        for schedule in schedules:
+            location_data = schedule.pop('location', {})
             try:
                 coordinates = location_data.get('coordinates', [0, 0])
                 latitude, longitude = coordinates
                 location = Point(longitude, latitude)
-            except ValueError:
-                    location = None
-            Schedule.objects.create(**schedule_data, event=event, location=location)
+            except (ValueError, TypeError):
+                location = None
+            Schedule.objects.create(**schedule, event=event, location=location)
+
 
         return event
