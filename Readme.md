@@ -13,7 +13,6 @@ sudo apt-get update
 sudo apt-get install redis-server
 ```
 
-
 ### Starting Redis
 
 **Start the Redis server with the following command:**
