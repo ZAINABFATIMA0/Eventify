@@ -55,9 +55,9 @@ CONSTANCE_CONFIG = {
 CONSTANCE_IGNORE_ADMIN_VERSION_CHECK = True
 
 CONSTANCE_REDIS_CONNECTION = {
-    'host': 'localhost',
-    'port': 6379,
-    'db': 0,
+    'host': config('REDIS_HOST', default='localhost'),
+    'port': config('REDIS_PORT', default=6379, cast=int),
+    'db': config('REDIS_DB', default=0, cast=int),
 }
 
 CONSTANCE_BACKEND = 'constance.backends.redisd.RedisBackend'
