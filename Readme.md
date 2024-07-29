@@ -6,7 +6,7 @@ Ensure you have Redis installed on your system. If Redis is not installed, follo
 
 ### Installation
 
-**Run following commands in command line**
+**Run the following commands in command line:**
 
 ```bash
 sudo apt-get update
