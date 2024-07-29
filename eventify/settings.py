@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "constance",
     "rest_framework",
     "rest_framework_simplejwt",
     "users",
@@ -46,6 +47,20 @@ INSTALLED_APPS = [
     "django_extensions",
     "django_filters",
 ]
+
+CONSTANCE_CONFIG = {
+   'MAX_DISTANCE': (5000, 'Maximum distance in meters for filtering events.', int),
+}
+
+CONSTANCE_IGNORE_ADMIN_VERSION_CHECK = True
+
+CONSTANCE_REDIS_CONNECTION = {
+    'host': 'localhost',
+    'port': 6379,
+    'db': 0,
+}
+
+CONSTANCE_BACKEND = 'constance.backends.redisd.RedisBackend'
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

@@ -1,3 +1,4 @@
+from constance import config
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance
 import django_filters
@@ -42,10 +43,11 @@ class Filters(django_filters.FilterSet):
     def filter_by_location(self, queryset, name, value):
         try:
             latitude, longitude = map(float, value.split(','))
-            user_location = Point(latitude, longitude, srid=4326)
-            distance = 5000
-            return queryset.annotate(
-                distance=Distance('schedules__location', user_location)
-            ).filter(distance__lte=distance)
-        except (ValueError, TypeError):
+        except ValueError:
             return queryset
+        user_location = Point(latitude, longitude, srid=4326)
+        distance = config.MAX_DISTANCE
+
+        return queryset.annotate(
+            distance=Distance('schedules__location', user_location)
+        ).filter(distance__lte=distance)
