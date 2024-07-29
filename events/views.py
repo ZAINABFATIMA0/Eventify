@@ -3,7 +3,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from .filters import EventFilter
+from .filters import Filters
 from .models import Category, Event
 from .serializer import CategorySerializer, EventSerializer
 
@@ -22,7 +22,7 @@ def create_event(request):
 def list_event(request):
     events = Event.objects.all()
 
-    filterset = EventFilter(request.GET, queryset=events)
+    filterset = Filters(request.GET, queryset=events)
     if filterset.is_valid():
         events = filterset.qs
 
