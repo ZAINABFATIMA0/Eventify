@@ -53,4 +53,4 @@ class RegistrationSerializer(serializers.ModelSerializer):
             defaults={'otp': otp, 'otp_expiry': otp_expiry}
         )
         send_otp_email.delay(email, otp)
-        return otp
+        return registration
