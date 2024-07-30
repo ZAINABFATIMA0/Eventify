@@ -1,7 +1,10 @@
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from django.contrib.gis.geos import Point
 from rest_framework import serializers
 
 from .models import Category, Event, Schedule
+from users.models import Registration
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -98,3 +101,34 @@ class EventSerializer(serializers.ModelSerializer):
             Schedule.objects.create(**schedule, event=event, location=location)
 
         return event
+
+
+class VerifyOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp = serializers.CharField(max_length=6)
+    event = serializers.IntegerField() 
+
+    def validate(self, data):
+        email = data.get('email')
+        otp = data.get('otp')
+        event_id = data.get('event')
+        
+        registration = get_object_or_404(
+        Registration, 
+        email=email, 
+        event_id=event_id
+        )
+
+        if registration.otp_expiry < timezone.now():
+            raise serializers.ValidationError({"otp": "OTP has expired"})
+        
+        if registration.otp != otp:
+            raise serializers.ValidationError({"otp": "Invalid OTP"})
+        
+        return data
+
+    def update(self, instance, validated_data):
+        instance.is_verified = True
+        instance.otp = None
+        instance.save()
+        return instance

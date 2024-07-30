@@ -1,4 +1,4 @@
-from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from .filters import Filters
 from .helpers import generate_otp_and_expiry
 from .models import Category, Event
-from .serializer import CategorySerializer, EventSerializer
+from .serializer import CategorySerializer, EventSerializer, VerifyOTPSerializer
 from .tasks import send_otp_email
 from users.models import Registration
 from users.serializer import RegistrationSerializer
@@ -47,11 +47,7 @@ def list_category(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_event(request, event_id):
-    try:
-        event = Event.objects.get(id=event_id)
-    except Event.DoesNotExist:
-        return Response({'error': 'Event not found'})
-
+    event = get_object_or_404(Event, pk=event_id)
     serializer = EventSerializer(event)
     return Response(serializer.data)
 
@@ -76,25 +72,18 @@ def register_for_event(request, event_id):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def verify_otp(request):
-    email = request.data.get('email')
-    otp = request.data.get('otp')
-
-    if not email or not otp:
-        return Response({"error": "Both email and OTP must be provided"})
-    try:
-        registration = Registration.objects.get(email=email)
-    except Registration.DoesNotExist:
-        return Response({"error": "Registration not found"})
-    
-    if registration.otp_expiry < timezone.now():
-        return Response({"error": "OTP has expired"})
-    
-    if registration.otp != otp:
-        return Response({"error": "Invalid OTP"})
-    
-    registration.is_verified = True
-    registration.otp = None  
-    registration.save()
-    
+def verify_otp(request, event_id):
+    registration = {
+        'email': request.data.get('email'),
+        'otp': request.data.get('otp'),
+        'event': event_id,
+    }
+    serializer = VerifyOTPSerializer(data=registration)
+    serializer.is_valid(raise_exception=True)
+    registration = get_object_or_404(
+        Registration, 
+        email=serializer.validated_data['email'], 
+        event_id=event_id
+    )
+    serializer.update(registration, serializer.validated_data)
     return Response({"message": "OTP verified successfully"})
