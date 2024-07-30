@@ -41,3 +41,42 @@ REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_DB=0
 ```
+
+## Setting Up Celery for Email Sending
+
+### Prerequisites
+Ensure you have Celery installed on your system. If Celery is not installed, follow the below instructions.
+
+### Insallation
+
+Configure Celery in settings.py:
+**Run the following commands in command line:**
+
+```bash
+pip install celery
+```
+### Configuration
+We will be using redis as a broker for cwlwery which we have already installed and configured above.
+Add the following Celery settings in your settings.py:
+```bash
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+```
+### Starting Redis
+
+**Start the Redis server with the following command:**
+
+```bash
+redis-server
+```
+Redis should start running on the default port 6379.
+### Starting Celery
+
+Start a Celery  by running the following command:
+
+Run the following command in your project's root directory:
+
+```bash
+celery -A your_project_name worker --loglevel=info
+```
+
+## Email Configuration
