@@ -1,7 +1,12 @@
+import random
+from datetime import datetime, timedelta
+
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
+from django.utils import timezone
 
 from .models import User, Registration
+from events.tasks import send_otp_email
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -39,13 +44,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         email = validated_data.get('email')
         event = validated_data.get('event')
-        otp = validated_data.get('otp')
-        otp_expiry = validated_data.get('otp_expiry')
+        otp = random.randint(100000, 999999)
+        otp_expiry = timezone.now() + timedelta(minutes=5)
 
         registration, created = Registration.objects.update_or_create(
             email=email,
             event=event,
             defaults={'otp': otp, 'otp_expiry': otp_expiry}
         )
-        
-        return registration
+        send_otp_email.delay(email, otp)
+        return otp

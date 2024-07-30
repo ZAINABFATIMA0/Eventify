@@ -5,7 +5,6 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from .filters import Filters
-from .helpers import generate_otp_and_expiry
 from .models import Category, Event
 from .serializer import CategorySerializer, EventSerializer, VerifyOTPSerializer
 from .tasks import send_otp_email
@@ -54,20 +53,15 @@ def get_event(request, event_id):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_for_event(request, event_id):
-
-    email = request.data.get('email')
-    otp, otp_expiry = generate_otp_and_expiry()
-    registration = {
-        'email': email,
-        'event': event_id,
-        'otp': otp,
-        'otp_expiry': otp_expiry
-    }
-    serializer = RegistrationSerializer(data=registration)
+  
+    serializer = RegistrationSerializer(
+        data={
+            'email': request.data['email'],
+            'event': event_id
+        }
+    )
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    
-    send_otp_email.delay(email, otp)
 
     return Response({"message": "Registration created successfully"})
 
@@ -75,12 +69,13 @@ def register_for_event(request, event_id):
 @permission_classes([AllowAny])
 def verify_otp(request, event_id):
 
-    registration = {
-        'email': request.data.get('email'),
-        'otp': request.data.get('otp'),
-        'event': event_id,
-    }
-    serializer = VerifyOTPSerializer(data=registration)
+    serializer = VerifyOTPSerializer(
+        data={
+            'email': request.data.get('email'),
+            'otp': request.data.get('otp'),
+            'event': event_id,
+        }
+    )
     serializer.is_valid(raise_exception=True)
 
     registration = get_object_or_404(
