@@ -7,14 +7,12 @@ from celery import shared_task
 @shared_task
 def send_otp_email(email, otp):
   
-    html_message = render_to_string('otp_email.html', {'otp' : otp})
-    body = strip_tags(html_message)
-   
+    html_message = render_to_string('otp_email.html', {'otp' : otp})   
     email = EmailMultiAlternatives(
         'Your OTP Code',
-        body,
+        "",
         config('EMAIL_HOST_USER'),
         [email]
     )
     email.attach_alternative(html_message, "text/html")
-    email.send()
+    email.send(fail_silently=False)
