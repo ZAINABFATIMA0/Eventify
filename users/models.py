@@ -15,6 +15,9 @@ class User(AbstractUser):
 
 class Registration(models.Model):
     email = models.EmailField(max_length=255)
+    is_verified = models.BooleanField(default=False)
+    otp = models.CharField(max_length=6, null=True, blank=True)
+    otp_expiry = models.DateTimeField(blank=True, null=True)
 
     event = models.ForeignKey(
         "events.Event", 

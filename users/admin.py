@@ -29,4 +29,9 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Registration)
 class RegistrationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'email', 'event')
+    list_display = ('id', 'email', 'event', 'is_verified')
+    list_filter = (
+        'email',
+        'event',
+        'is_verified',
+    )

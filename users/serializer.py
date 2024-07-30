@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 
-from .models import User
+from .models import User, Registration
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -29,3 +29,23 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+
+class RegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Registration
+        fields = ['email', 'event', 'is_verified', 'otp', 'otp_expiry']
+
+    def create(self, validated_data):
+        email = validated_data.get('email')
+        event = validated_data.get('event')
+        otp = validated_data.get('otp')
+        otp_expiry = validated_data.get('otp_expiry')
+
+        registration, created = Registration.objects.update_or_create(
+            email=email,
+            event=event,
+            defaults={'otp': otp, 'otp_expiry': otp_expiry}
+        )
+        
+        return registration
