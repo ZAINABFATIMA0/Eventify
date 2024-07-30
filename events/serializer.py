@@ -92,10 +92,9 @@ class EventSerializer(serializers.ModelSerializer):
             try:
                 coordinates = location.get('coordinates', [0, 0])
                 latitude, longitude = coordinates
-                location = Point(longitude, latitude)
+                location = Point(latitude, longitude)
             except (ValueError, TypeError):
                 location = None
             Schedule.objects.create(**schedule, event=event, location=location)
-
 
         return event

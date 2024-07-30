@@ -38,13 +38,29 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "constance",
     "rest_framework",
     "rest_framework_simplejwt",
     "users",
     "events",
     "communications",
     "django_extensions",
+    "django_filters",
 ]
+
+CONSTANCE_CONFIG = {
+   'MAX_DISTANCE': (5000, 'Maximum distance in meters for filtering events.', int),
+}
+
+CONSTANCE_IGNORE_ADMIN_VERSION_CHECK = True
+
+CONSTANCE_REDIS_CONNECTION = {
+    'host': config('REDIS_HOST', default='localhost'),
+    'port': config('REDIS_PORT', default=6379, cast=int),
+    'db': config('REDIS_DB', default=0, cast=int),
+}
+
+CONSTANCE_BACKEND = 'constance.backends.redisd.RedisBackend'
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -137,6 +153,9 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
     ],
 }
 
