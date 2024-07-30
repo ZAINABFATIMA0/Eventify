@@ -54,6 +54,7 @@ def get_event(request, event_id):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_for_event(request, event_id):
+
     email = request.data.get('email')
     otp, otp_expiry = generate_otp_and_expiry()
     registration = {
@@ -73,6 +74,7 @@ def register_for_event(request, event_id):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def verify_otp(request, event_id):
+
     registration = {
         'email': request.data.get('email'),
         'otp': request.data.get('otp'),
@@ -80,10 +82,12 @@ def verify_otp(request, event_id):
     }
     serializer = VerifyOTPSerializer(data=registration)
     serializer.is_valid(raise_exception=True)
+
     registration = get_object_or_404(
         Registration, 
         email=serializer.validated_data['email'], 
         event_id=event_id
     )
     serializer.update(registration, serializer.validated_data)
+
     return Response({"message": "OTP verified successfully"})
