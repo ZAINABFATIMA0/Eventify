@@ -32,6 +32,5 @@ class RegistrationAdmin(admin.ModelAdmin):
     list_display = ('id', 'email', 'event', 'is_verified')
     list_filter = (
         'email',
-        'event',
         'is_verified',
     )
