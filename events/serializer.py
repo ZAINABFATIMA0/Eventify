@@ -109,22 +109,19 @@ class VerifyOTPSerializer(serializers.Serializer):
     event = serializers.IntegerField() 
 
     def validate(self, data):
-        email = data.get('email')
-        otp = data.get('otp')
-        event_id = data.get('event')
-        
+
         registration = get_object_or_404(
         Registration, 
-        email=email, 
-        event_id=event_id
+        email=data.get('email'), 
+        event_id=data.get('event')
         )
+          
+        if registration.otp != data.get('otp'):
+            raise serializers.ValidationError({"otp": "Invalid OTP"})
 
         if registration.otp_expiry < timezone.now():
             raise serializers.ValidationError({"otp": "OTP has expired"})
-        
-        if registration.otp != otp:
-            raise serializers.ValidationError({"otp": "Invalid OTP"})
-        
+      
         return data
 
     def update(self, instance, validated_data):
