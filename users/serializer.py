@@ -34,7 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
 class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Registration
-        fields = ['email', 'event', 'is_verified', 'otp', 'otp_expiry']
+        fields = '__all__'
 
     def create(self, validated_data):
         email = validated_data.get('email')
