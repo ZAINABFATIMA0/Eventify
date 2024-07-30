@@ -123,9 +123,3 @@ class VerifyOTPSerializer(serializers.Serializer):
             raise serializers.ValidationError({"otp": "OTP has expired"})
       
         return data
-
-    def update(self, instance, validated_data):
-        instance.is_verified = True
-        instance.otp = None
-        instance.save()
-        return instance

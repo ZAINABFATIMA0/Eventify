@@ -83,6 +83,8 @@ def verify_otp(request, event_id):
         email=serializer.validated_data['email'], 
         event_id=event_id
     )
-    serializer.update(registration, serializer.validated_data)
+    registration.is_verified = True
+    registration.otp = None
+    registration.save()
 
     return Response({"message": "OTP verified successfully"})
