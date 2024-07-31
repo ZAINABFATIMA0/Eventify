@@ -7,7 +7,6 @@ from rest_framework.response import Response
 from .filters import Filters
 from .models import Category, Event
 from .serializer import CategorySerializer, EventSerializer, VerifyOTPSerializer
-from .tasks import send_otp_email
 from users.models import Registration
 from users.serializer import RegistrationSerializer
 
@@ -63,7 +62,7 @@ def register_for_event(request, pk):
     serializer.is_valid(raise_exception=True)
     serializer.save()
 
-    return Response({"message": "Registration created successfully"})
+    return Response({"message": "Registration created successfully. Email is not verified"})
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
