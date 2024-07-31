@@ -71,7 +71,7 @@ redis-server
 Redis should start running on the default port 6379.
 ### Starting Celery
 
-Start a Celery  by running the following command:
+Start Celery  by running the following command:
 
 Run the following command in your project's root directory:
 
@@ -80,6 +80,13 @@ celery -A your_project_name worker --loglevel=info
 ```
 
 ## Email Configuration
+
+### Using a Gmail Account
+To send emails using your Google account, you need to have 2-step verification enabled. If that is enabled follow these steps:
+
+1. Go to [Google App Passwords](https://myaccount.google.com/apppasswords) and sign in with your Google account.
+2. Enter a custom name for your app.
+3. Google will generate a 16-character app password. Use this password in place of your usual Google account password in your app.
 
 ### Configuration
 Add the following setiings in your settings.py file and configure them according to your project.
@@ -90,5 +97,5 @@ EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')  # Use the 16-character app password here
 ```
