@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 def send_otp_email(email, otp, otp_expiry):
     html_message = render_to_string(
         'otp_email.html', 
-        {'otp' : otp, 'otp_expiry' : otp_expiry}
+        {'otp': otp, 'otp_expiry': otp_expiry}
     )   
     email = EmailMultiAlternatives(
         'Your OTP Code',
