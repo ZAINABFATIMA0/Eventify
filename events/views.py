@@ -86,4 +86,4 @@ def verify_otp(request, pk):
     registration.otp = None
     registration.save()
 
-    return Response({"message": "OTP verified successfully"})
+    return Response({"message": "OTP/Email verified successfully"})

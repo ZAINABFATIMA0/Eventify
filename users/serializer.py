@@ -42,15 +42,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        email = validated_data.get('email')
-        event = validated_data.get('event')
-        otp = random.randint(100000, 999999)
-        otp_expiry = timezone.now() + timedelta(minutes=5)
-
         registration, created = Registration.objects.update_or_create(
-            email=email,
-            event=event,
-            defaults={'otp': otp, 'otp_expiry': otp_expiry}
+            email=validated_data.get('email'),
+            event=validated_data.get('event'),
+            defaults={
+                'otp': random.randint(100000, 999999),
+                'otp_expiry': timezone.now() + timedelta(minutes=5)
+            }
         )
-        send_otp_email.delay(email, otp)
+        send_otp_email.delay(registration.email, registration.otp)
         return registration
