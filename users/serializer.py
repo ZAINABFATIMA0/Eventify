@@ -1,7 +1,14 @@
-from rest_framework import serializers
-from django.contrib.auth.password_validation import validate_password
+from datetime import timedelta
+import random
 
-from .models import User
+from constance import config
+from django.contrib.auth.password_validation import validate_password
+from django.utils import timezone
+from rest_framework import serializers
+
+from .models import User, Registration
+from events.models import Event
+from events.tasks import send_otp_email
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -29,3 +36,28 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+
+class RegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Registration
+        fields = '__all__'
+
+    def validate(self, data):
+        if not (data.get('event').registration_start_time 
+                <= timezone.now() 
+                <= data.get('event').registration_end_time):
+            raise serializers.ValidationError("Registration has not opened or is closed.")
+        return data
+    
+    def create(self, validated_data):
+        registration, created = Registration.objects.update_or_create(
+            email=validated_data.get('email'),
+            event=validated_data.get('event'),
+            defaults={
+                'otp': random.randint(100000, 999999),
+                'otp_expiry': timezone.now() + timedelta(minutes=config.OTP_EXPIRY_TIME)
+            }
+        )
+        send_otp_email.delay(registration.email, registration.otp, config.OTP_EXPIRY_TIME)
+        return registration
