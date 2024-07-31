@@ -4,7 +4,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from users.serializer import UserSerializer, VerifiedEmailSerializer
+from users.serializer import UserSerializer, VerifiedRegistrationsSerializer
 from events.serializer import EventSerializer
 from events.models import Event
 from users.models import Registration
@@ -36,13 +36,10 @@ def get_events(request):
 @permission_classes([IsAuthenticated])
 def get_verified_registrations(request, pk):
    
-   event = get_object_or_404(Event, id=pk)
-  
-   if event.creator != request.user:
-       return Response({'error': 'You are not the creator of this event'})
+   event = get_object_or_404(Event, id=pk, creator=request.user)
   
    verified_registrations = Registration.objects.filter(event=event, is_verified=True)
-   serializer = VerifiedEmailSerializer(verified_registrations, many=True)
+   serializer = VerifiedRegistrationsSerializer(verified_registrations, many=True)
   
    return Response({
         'seats left': event.seat_limit - verified_registrations.count(),

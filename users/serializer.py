@@ -63,7 +63,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return registration
 
 
-class VerifiedEmailSerializer(serializers.ModelSerializer):
+class VerifiedRegistrationsSerializer(serializers.ModelSerializer):
    class Meta:
        model = Registration
        fields = ['email']
