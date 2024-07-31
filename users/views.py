@@ -42,7 +42,7 @@ def get_verified_registrations(request, pk):
    serializer = VerifiedRegistrationsSerializer(verified_registrations, many=True)
   
    return Response({
-        'seats left': event.seat_limit - verified_registrations.count(),
-        'registrations count': verified_registrations.count(),
-        'registered emails': serializer.data,
+        'seats_left': event.seat_limit - verified_registrations.count(),
+        'registrations_count': verified_registrations.count(),
+        'registered_users': serializer.data,
     })
