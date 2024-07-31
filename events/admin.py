@@ -31,4 +31,3 @@ class EventAdmin(admin.ModelAdmin):
 class ScheduleAdmin(admin.ModelAdmin):
     list_display = ('id', 'start_time', 'end_time', 'location', 'event')
     list_filter = ('start_time', 'end_time')
-
