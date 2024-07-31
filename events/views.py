@@ -45,19 +45,19 @@ def list_category(request):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def get_event(request, event_id):
-    event = get_object_or_404(Event, pk=event_id)
+def get_event(request, pk):
+    event = get_object_or_404(Event, pk=pk)
     serializer = EventSerializer(event)
     return Response(serializer.data)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def register_for_event(request, event_id):
+def register_for_event(request, pk):
   
     serializer = RegistrationSerializer(
         data={
             'email': request.data['email'],
-            'event': event_id
+            'event': pk
         }
     )
     serializer.is_valid(raise_exception=True)
@@ -67,13 +67,13 @@ def register_for_event(request, event_id):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def verify_otp(request, event_id):
+def verify_otp(request, pk):
 
     serializer = VerifyOTPSerializer(
         data={
             'email': request.data.get('email'),
             'otp': request.data.get('otp'),
-            'event': event_id,
+            'event': pk,
         }
     )
     serializer.is_valid(raise_exception=True)
@@ -81,7 +81,7 @@ def verify_otp(request, event_id):
     registration = get_object_or_404(
         Registration, 
         email=serializer.validated_data['email'], 
-        event_id=event_id
+        event_id=pk
     )
     registration.is_verified = True
     registration.otp = None
