@@ -1,7 +1,7 @@
+from celery import shared_task
+from decouple import config
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-from decouple import config
-from celery import shared_task
 
 @shared_task
 def send_otp_email(email, otp, otp_expiry):

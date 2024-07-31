@@ -1,6 +1,6 @@
-from django.utils import timezone
-from django.shortcuts import get_object_or_404
 from django.contrib.gis.geos import Point
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import serializers
 
 from .models import Category, Event, Schedule

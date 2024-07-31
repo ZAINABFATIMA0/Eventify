@@ -1,11 +1,10 @@
-import random
 from datetime import timedelta
+import random
 
 from constance import config
-from rest_framework import serializers
-from django.shortcuts import get_object_or_404
 from django.contrib.auth.password_validation import validate_password
 from django.utils import timezone
+from rest_framework import serializers
 
 from .models import User, Registration
 from events.models import Event
