@@ -35,7 +35,7 @@ REDIS_DB=0
 
 ### Configuration
 We will be using redis as a broker for celery which we have already installed.
-Set the CELERY_BROKER_URL in your env file:
+Set the CELERY_BROKER_URL in your .env file:
 ```bash
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 ```
@@ -67,7 +67,7 @@ To send emails using your Google account, you need to have 2-step verification e
 3. Google will generate a 16-character app password. Use this password in place of your usual Google account password in your app.
 
 ### Configuration
-Set the following variables your env file and configure them according to your project.
+Set the following variables in your .env file and configure them according to your project.
 
 ```bash
 EMAIL_HOST='smtp.gmail.com'
