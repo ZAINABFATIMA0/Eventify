@@ -43,9 +43,9 @@ def get_verified_registrations(request, pk):
   
    verified_registrations = Registration.objects.filter(event=event, is_verified=True)
    serializer = VerifiedEmailSerializer(verified_registrations, many=True)
-   response = {
+  
+   return Response({
         'seats left': event.seat_limit - verified_registrations.count(),
         'registrations count': verified_registrations.count(),
         'registered emails': serializer.data,
-    }
-   return Response(response)
+    })
