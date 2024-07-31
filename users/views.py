@@ -21,7 +21,7 @@ def register(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_creator_events(request):
+def get_events(request):
    
    events = Event.objects.filter(creator=request.user)
 
