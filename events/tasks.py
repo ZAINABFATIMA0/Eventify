@@ -4,9 +4,11 @@ from decouple import config
 from celery import shared_task
 
 @shared_task
-def send_otp_email(email, otp):
-  
-    html_message = render_to_string('otp_email.html', {'otp' : otp})   
+def send_otp_email(email, otp, otp_expiry):
+    html_message = render_to_string(
+        'otp_email.html', 
+        {'otp' : otp, 'otp_expiry' : otp_expiry}
+    )   
     email = EmailMultiAlternatives(
         'Your OTP Code',
         "",

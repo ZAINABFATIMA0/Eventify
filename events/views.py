@@ -42,6 +42,7 @@ def list_category(request):
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
 
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_event(request, pk):
@@ -49,32 +50,26 @@ def get_event(request, pk):
     serializer = EventSerializer(event)
     return Response(serializer.data)
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_for_event(request, pk):
-  
-    serializer = RegistrationSerializer(
-        data={
-            'email': request.data['email'],
-            'event': pk
-        }
-    )
+
+    request.data['event'] = pk
+    serializer = RegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     serializer.save()
 
-    return Response({"message": "Registration created successfully. Email is not verified"})
+    return Response(
+        {"message": "Registration created successfully. Check your email for OTP"}
+    )
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def verify_otp(request, pk):
-
-    serializer = VerifyOTPSerializer(
-        data={
-            'email': request.data.get('email'),
-            'otp': request.data.get('otp'),
-            'event': pk,
-        }
-    )
+    
+    request.data['event'] = pk
+    serializer = VerifyOTPSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
     registration = get_object_or_404(
@@ -84,6 +79,7 @@ def verify_otp(request, pk):
     )
     registration.is_verified = True
     registration.otp = None
-    registration.save()
+    registration.otp_expiry = None
+    registration.save(update_fields=["is_verified", "otp", "otp_expiry"])
 
     return Response({"message": "OTP/Email verified successfully"})
