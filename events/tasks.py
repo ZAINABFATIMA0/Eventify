@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 @shared_task
 def send_registration_otp_email(email, otp, otp_expiry):
     html_message = render_to_string(
-        'otp_email.html', 
+        'register_otp_email.html', 
         {'otp': otp, 'otp_expiry': otp_expiry}
     )   
     email = EmailMultiAlternatives(
@@ -22,7 +22,7 @@ def send_registration_otp_email(email, otp, otp_expiry):
 @shared_task
 def send_unregistration_otp_email(email, otp, otp_expiry):
     html_message = render_to_string(
-        'unregister_email.html', 
+        'unregister_otp_email.html', 
         {'otp': otp, 'otp_expiry': otp_expiry}
     )   
     email = EmailMultiAlternatives(
