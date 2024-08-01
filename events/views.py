@@ -96,7 +96,6 @@ def unregister_for_event(request, pk):
 
     return Response({"message": "OTP sent to email for unregistering."})
 
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def confirm_unregistration_with_otp(request, pk):

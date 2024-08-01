@@ -20,7 +20,7 @@ def send_otp_email(email, otp, otp_expiry):
 
 
 @shared_task
-def send_unregister_email(email, otp, otp_expiry):
+def send_unregistration_email(email, otp, otp_expiry):
     html_message = render_to_string(
         'unregister_email.html', 
         {'otp': otp, 'otp_expiry': otp_expiry}
