@@ -3,12 +3,12 @@ import random
 
 from constance import config
 from django.contrib.auth.password_validation import validate_password
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import serializers
 
 from .models import User, Registration
-from events.models import Event
-from events.tasks import send_otp_email
+from events.tasks import send_otp_email, send_unregister_email
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -67,3 +67,23 @@ class VerifiedRegistrationsSerializer(serializers.ModelSerializer):
    class Meta:
        model = Registration
        fields = ['email']
+
+
+class UnregisterSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    event = serializers.IntegerField()
+
+    def create(self, validated_data):
+        registration = get_object_or_404(
+            Registration,
+            email=validated_data['email'],
+            event_id=validated_data['event']
+        )
+
+        registration.otp = random.randint(100000, 999999)
+        registration.otp_expiry = timezone.now() + timedelta(minutes=config.OTP_EXPIRY_TIME)
+        registration.save(update_fields=['otp', 'otp_expiry'])
+
+        send_unregister_email.delay(registration.email, registration.otp, config.OTP_EXPIRY_TIME)
+
+        return registration

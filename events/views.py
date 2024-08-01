@@ -8,7 +8,7 @@ from .filters import Filters
 from .models import Category, Event
 from .serializer import CategorySerializer, EventSerializer, VerifyOTPSerializer
 from users.models import Registration
-from users.serializer import RegistrationSerializer
+from users.serializer import RegistrationSerializer, UnregisterSerializer
 
 @api_view(['POST'])
 def create_event(request):
@@ -66,7 +66,7 @@ def register_for_event(request, pk):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def verify_otp(request, pk):
+def confirm_registration_with_otp(request, pk):
     
     request.data['event'] = pk
     serializer = VerifyOTPSerializer(data=request.data)
@@ -83,3 +83,37 @@ def verify_otp(request, pk):
     registration.save(update_fields=["is_verified", "otp", "otp_expiry"])
 
     return Response({"message": "OTP/Email verified successfully"})
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def unregister_for_event(request, pk):
+
+    request.data['event'] = pk
+    serializer = UnregisterSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+
+    return Response({"message": "OTP sent to email for unregistering."})
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def confirm_unregistration_with_otp(request, pk):
+
+    request.data['event'] = pk
+    serializer = VerifyOTPSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    registration = get_object_or_404(
+        Registration, 
+        email=serializer.validated_data['email'], 
+        event_id=pk
+    )
+    
+    registration.is_verified = False
+    registration.otp = None
+    registration.otp_expiry = None
+    registration.save(update_fields=['is_verified', 'otp', 'otp_expiry'])
+    
+    return Response({"message": "Unregistered successfully."})
