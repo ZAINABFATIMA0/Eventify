@@ -49,8 +49,9 @@ INSTALLED_APPS = [
 ]
 
 CONSTANCE_CONFIG = {
-   'MAX_DISTANCE': (5000, 'Maximum distance in meters for filtering events.', int),
-   'OTP_EXPIRY_TIME': (5, 'Time limit for OTP Expiry in minutes', int)
+    'MAX_DISTANCE': (5000, 'Maximum distance in meters for filtering events.', int),
+    'OTP_EXPIRY_TIME': (5, 'Time limit for OTP Expiry in minutes', int),
+    'UNREGISTRATION_GRACE_PERIOD': (5, 'Number of days before event registration end date during which unregistration is allowed', int)
 }
 
 CONSTANCE_IGNORE_ADMIN_VERSION_CHECK = True
