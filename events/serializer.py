@@ -53,7 +53,6 @@ class EventSerializer(serializers.ModelSerializer):
     schedules = ScheduleSerializer(many=True)
     seats_left = serializers.SerializerMethodField()
 
-
     class Meta:
         model = Event
         fields = '__all__'
