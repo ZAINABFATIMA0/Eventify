@@ -73,6 +73,22 @@ class UnregisterSerializer(serializers.Serializer):
     email = serializers.EmailField()
     event = serializers.IntegerField()
 
+    def validate(self, data):
+        registration = get_object_or_404(
+            Registration,
+            email=data['email'],
+            event_id=data['event']
+        )
+        grace_period_end = (
+            registration.event.registration_end_time 
+            - timedelta(days=config.UNREGISTRATION_GRACE_PERIOD)
+        )
+
+        if timezone.now() > grace_period_end:
+            raise serializers.ValidationError("Unregistration period has expired.")
+
+        return data
+
     def create(self, validated_data):
         registration = get_object_or_404(
             Registration,
