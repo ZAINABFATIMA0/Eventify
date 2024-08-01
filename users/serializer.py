@@ -61,3 +61,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
         )
         send_otp_email.delay(registration.email, registration.otp, config.OTP_EXPIRY_TIME)
         return registration
+
+
+class VerifiedRegistrationsSerializer(serializers.ModelSerializer):
+   class Meta:
+       model = Registration
+       fields = ['email']
