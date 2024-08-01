@@ -8,7 +8,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from .models import User, Registration
-from events.tasks import send_otp_email, send_unregistration_email
+from events.tasks import send_registration_otp_email, send_unregistration_otp_email
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -59,7 +59,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
                 'otp_expiry': timezone.now() + timedelta(minutes=config.OTP_EXPIRY_TIME)
             }
         )
-        send_otp_email.delay(registration.email, registration.otp, config.OTP_EXPIRY_TIME)
+        send_registration_otp_email.delay(registration.email, registration.otp, config.OTP_EXPIRY_TIME)
         return registration
 
 
@@ -100,6 +100,6 @@ class UnregisterSerializer(serializers.Serializer):
         registration.otp_expiry = timezone.now() + timedelta(minutes=config.OTP_EXPIRY_TIME)
         registration.save(update_fields=['otp', 'otp_expiry'])
 
-        send_unregistration_email.delay(registration.email, registration.otp, config.OTP_EXPIRY_TIME)
+        send_unregistration_otp_email.delay(registration.email, registration.otp, config.OTP_EXPIRY_TIME)
 
         return registration
