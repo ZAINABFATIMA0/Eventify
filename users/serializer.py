@@ -69,7 +69,7 @@ class VerifiedRegistrationsSerializer(serializers.ModelSerializer):
        fields = ['email']
 
 
-class UnregisterSerializer(serializers.Serializer):
+class UnregistrationSerializer(serializers.Serializer):
     email = serializers.EmailField()
     event = serializers.IntegerField()
 

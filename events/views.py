@@ -8,7 +8,7 @@ from .filters import Filters
 from .models import Category, Event
 from .serializer import CategorySerializer, EventSerializer, VerifyOTPSerializer
 from users.models import Registration
-from users.serializer import RegistrationSerializer, UnregisterSerializer
+from users.serializer import RegistrationSerializer, UnregistrationSerializer
 
 @api_view(['POST'])
 def create_event(request):
@@ -90,7 +90,7 @@ def verify_registration_otp(request, pk):
 def unregister_from_event(request, pk):
 
     request.data['event'] = pk
-    serializer = UnregisterSerializer(data=request.data)
+    serializer = UnregistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     serializer.save()
 
