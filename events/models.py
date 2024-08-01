@@ -44,7 +44,7 @@ class Event(models.Model):
     @property
     def seats_left(self):
        total_registrations = Registration.objects.filter(event=self, is_verified=True).count()
-       return max(self.seat_limit - total_registrations, 0)
+       return (self.seat_limit - total_registrations)
 
 
 class Schedule(model.Model):
