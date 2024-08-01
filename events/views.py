@@ -87,7 +87,7 @@ def confirm_registration_with_otp(request, pk):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def unregister_for_event(request, pk):
+def unregister_from_event(request, pk):
 
     request.data['event'] = pk
     serializer = UnregisterSerializer(data=request.data)
