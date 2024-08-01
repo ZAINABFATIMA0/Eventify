@@ -51,11 +51,15 @@ class ScheduleSerializer(serializers.ModelSerializer):
 
 class EventSerializer(serializers.ModelSerializer):
     schedules = ScheduleSerializer(many=True)
+    seats_left = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
         fields = '__all__'
         read_only_fields = ['creator']
+
+    def get_seats_left(self, obj):
+       return obj.seats_left
 
     def validate(self, data):
         if data['registration_start_time'] >= data['registration_end_time']:
@@ -101,8 +105,8 @@ class EventSerializer(serializers.ModelSerializer):
             Schedule.objects.create(**schedule, event=event, location=location)
 
         return event
-
-
+    
+  
 class VerifyOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField(max_length=6)

@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.gis.db import models as model
 
 from .choices import EventType
+from users.models import Registration
 
 
 class Category(models.Model):
@@ -39,6 +40,11 @@ class Event(models.Model):
         related_name="events", 
         on_delete=models.CASCADE
     )
+
+    @property
+    def seats_left(self):
+       total_registrations = Registration.objects.filter(event=self, is_verified=True).count()
+       return (self.seat_limit - total_registrations)
 
 
 class Schedule(model.Model):

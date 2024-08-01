@@ -44,6 +44,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, data):
+
+        if data.get('event').seats_left <= 0:
+           raise serializers.ValidationError("Registration is full for this event.")
+
         if not (data.get('event').registration_start_time 
                 <= timezone.now() 
                 <= data.get('event').registration_end_time):
