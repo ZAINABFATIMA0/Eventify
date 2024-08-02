@@ -94,14 +94,14 @@ class EventSerializer(serializers.ModelSerializer):
         instance.save()
 
         existing_schedules = list(instance.schedules.all())
+
         for index in range (len(new_schedules)):
+
             location_data = new_schedules[index].pop('location', {})
-            try:
-                coordinates = location_data.get('coordinates', [0, 0])
-                latitude, longitude = coordinates
-                location = Point(latitude, longitude)
-            except (ValueError, TypeError):
-                location = None
+            coordinates = location_data.get('coordinates', [0, 0])
+            latitude, longitude = coordinates
+            location = Point(latitude, longitude)
+
             if index < len(existing_schedules):
                 existing_schedule = existing_schedules[index]
                 for attr, value in new_schedules[index].items():
