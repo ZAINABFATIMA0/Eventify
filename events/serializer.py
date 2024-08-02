@@ -95,7 +95,7 @@ class EventSerializer(serializers.ModelSerializer):
 
         existing_schedules = instance.schedules.filter(deleted=False)
 
-        for index in range (len(new_schedules)):
+        for index in range(len(new_schedules)):
             location_data = new_schedules[index].pop('location', {})
             latitude, longitude = location_data.get('coordinates', [0, 0])
             location = Point(latitude, longitude)
