@@ -20,6 +20,20 @@ def create_event(request):
     serializer.save()
     return Response(serializer.data)
 
+@api_view(['PUT'])
+def update_event(request, pk):
+
+    event = get_object_or_404(Event, id=pk, creator=request.user)
+    serializer = EventSerializer(
+        event,
+        data=request.data, 
+        partial=True
+    )
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    
+    return Response(serializer.data)
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def list_event(request):

@@ -4,6 +4,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from .models import Category, Event, Schedule
+from .tasks import send_update_event_email
 from users.models import Registration
 
 
@@ -83,6 +84,42 @@ class EventSerializer(serializers.ModelSerializer):
             )
         
         return data
+    
+    def update(self, instance, validated_data):
+
+        new_schedules = validated_data.pop('schedules', None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        existing_schedules = list(instance.schedules.all())
+        for index, schedule in enumerate(new_schedules):
+            location_data = schedule.pop('location', {})
+            try:
+                coordinates = location_data.get('coordinates', [0, 0])
+                latitude, longitude = coordinates
+                location = Point(latitude, longitude)
+            except (ValueError, TypeError):
+                location = None
+            if index < len(existing_schedules):
+                existing_schedule = existing_schedules[index]
+                for attr, value in schedule.items():
+                    setattr(existing_schedule, attr, value)
+                existing_schedule.location = location
+                existing_schedule.save()
+            else:
+                Schedule.objects.create(event=instance, location=location, **schedule)
+        
+        schedules_to_delete = existing_schedules[len(new_schedules):]
+        for schedule in schedules_to_delete:
+            Schedule.objects.filter(id=schedule.id).delete()
+
+        verified_registrations = Registration.objects.filter(event=instance, is_verified=True)
+        for registration in verified_registrations:
+            send_update_event_email.delay(registration.email, instance.name, instance.id)   
+
+        return instance
 
     def create(self, validated_data):
         request = self.context.get("request")
