@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="schedule",
-            name="deleted",
-            field=models.BooleanField(default=False),
+            name="is_active",
+            field=models.BooleanField(default=True),
         ),
     ]
