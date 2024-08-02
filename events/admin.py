@@ -29,5 +29,5 @@ class EventAdmin(admin.ModelAdmin):
 
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
-    list_display = ('id', 'start_time', 'end_time', 'location', 'event', 'deleted')
+    list_display = ('id', 'start_time', 'end_time', 'location', 'event', 'is_active')
     list_filter = ('start_time', 'end_time')

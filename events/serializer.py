@@ -93,7 +93,7 @@ class EventSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
 
-        existing_schedules = instance.schedules.filter(deleted=False)
+        existing_schedules = instance.schedules.filter(is_active=True)
 
         for index in range(len(new_schedules)):
             location_data = new_schedules[index].pop('location', {})
@@ -111,7 +111,7 @@ class EventSerializer(serializers.ModelSerializer):
         
         schedules_to_delete = existing_schedules[len(new_schedules):]
         for schedule in schedules_to_delete:
-            schedule.deleted = True
+            schedule.is_active = False
             schedule.save()
 
         verified_registrations = Registration.objects.filter(event=instance, is_verified=True)
