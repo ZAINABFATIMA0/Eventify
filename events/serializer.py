@@ -93,7 +93,7 @@ class EventSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
 
-        existing_schedules = list(instance.schedules.all())
+        existing_schedules = instance.schedules.filter(deleted=False)
 
         for index in range (len(new_schedules)):
             location_data = new_schedules[index].pop('location', {})
