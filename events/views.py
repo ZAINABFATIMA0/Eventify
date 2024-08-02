@@ -27,11 +27,10 @@ def update_event(request, pk):
     serializer = EventSerializer(
         event,
         data=request.data, 
-        partial=True
     )
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    
+
     return Response(serializer.data)
 
 @api_view(['GET'])
