@@ -96,7 +96,6 @@ class EventSerializer(serializers.ModelSerializer):
         existing_schedules = list(instance.schedules.all())
 
         for index in range (len(new_schedules)):
-
             location_data = new_schedules[index].pop('location', {})
             coordinates = location_data.get('coordinates', [0, 0])
             latitude, longitude = coordinates
