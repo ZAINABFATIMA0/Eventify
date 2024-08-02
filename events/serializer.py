@@ -94,8 +94,8 @@ class EventSerializer(serializers.ModelSerializer):
         instance.save()
 
         existing_schedules = list(instance.schedules.all())
-        for index, schedule in enumerate(new_schedules):
-            location_data = schedule.pop('location', {})
+        for index in range (len(new_schedules)):
+            location_data = new_schedules[index].pop('location', {})
             try:
                 coordinates = location_data.get('coordinates', [0, 0])
                 latitude, longitude = coordinates
@@ -104,16 +104,17 @@ class EventSerializer(serializers.ModelSerializer):
                 location = None
             if index < len(existing_schedules):
                 existing_schedule = existing_schedules[index]
-                for attr, value in schedule.items():
+                for attr, value in new_schedules[index].items():
                     setattr(existing_schedule, attr, value)
                 existing_schedule.location = location
                 existing_schedule.save()
             else:
-                Schedule.objects.create(event=instance, location=location, **schedule)
+                Schedule.objects.create(event=instance, location=location, **new_schedules[index])
         
         schedules_to_delete = existing_schedules[len(new_schedules):]
         for schedule in schedules_to_delete:
-            Schedule.objects.filter(id=schedule.id).delete()
+            schedule.deleted = True
+            schedule.save()
 
         verified_registrations = Registration.objects.filter(event=instance, is_verified=True)
         for registration in verified_registrations:

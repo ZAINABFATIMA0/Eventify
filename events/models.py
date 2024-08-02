@@ -51,6 +51,7 @@ class Schedule(model.Model):
     start_time = model.DateTimeField()
     end_time = model.DateTimeField()
     location = model.PointField()
+    deleted = models.BooleanField(default=False)
 
     event = models.ForeignKey(
         "events.Event", 
