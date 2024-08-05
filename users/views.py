@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from users.serializer import UserSerializer, VerifiedRegistrationsSerializer
 from events.serializer import EventSerializer
-from events.models import Event
+from events.models import Event, Schedule
 from users.models import Registration
 
 @api_view(['POST'])
@@ -36,13 +36,20 @@ def get_events(request):
 @permission_classes([IsAuthenticated])
 def get_verified_registrations(request, pk):
    
-   event = get_object_or_404(Event, id=pk, creator=request.user)
+    event = get_object_or_404(Event, id=pk, creator=request.user)
   
-   verified_registrations = Registration.objects.filter(event=event, is_verified=True)
-   serializer = VerifiedRegistrationsSerializer(verified_registrations, many=True)
-  
-   return Response({
-        'seats_left': event.seat_limit - verified_registrations.count(),
-        'registrations_count': verified_registrations.count(),
-        'registered_users': serializer.data,
-    })
+    schedules = Schedule.objects.filter(event=event, is_active=True)
+    schedule_data = []
+
+    for schedule in schedules:
+        verified_registrations = Registration.objects.filter(schedule=schedule, is_verified=True)
+        serializer = VerifiedRegistrationsSerializer(verified_registrations, many=True)
+        
+        schedule_data.append({
+            'schedule': schedule.id,
+            'seats_left': schedule.seats_left,
+            'registrations_count': verified_registrations.count(),
+            'registered_users': serializer.data,
+        })
+    
+    return Response(schedule_data)

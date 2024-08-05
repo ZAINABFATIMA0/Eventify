@@ -16,10 +16,16 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ScheduleSerializer(serializers.ModelSerializer):
     location = serializers.JSONField()
+    seats_left = serializers.SerializerMethodField()
 
     class Meta:
         model = Schedule
-        fields = ['start_time', 'end_time', 'location']
+        fields = ['id', 'type', 'start_time', 'end_time', 'registration_start_time', 
+                  'registration_end_time', 'location', 'seat_limit', 'meeting_link', 'seats_left'
+        ]
+
+    def get_seats_left(self, obj):
+       return obj.seats_left
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -28,9 +34,29 @@ class ScheduleSerializer(serializers.ModelSerializer):
         return representation
 
     def validate(self, data):
+
+        if data['type'] in ['HYBRID', 'ONSITE']:
+            location =  (
+                isinstance(data.get('location'), dict) and 'coordinates' in data.get('location')
+            )
+            if not location:
+                raise serializers.ValidationError(
+                    "Location with coordinates is required for hybrid and onsite events."
+                )
+
+        if data['type'] in ['HYBRID', 'ONLINE'] and not data['meeting_link']:
+            raise serializers.ValidationError(
+                "Meeting link is required for online and hybrid events."
+            )
+        
         if data['start_time'] >= data['end_time']:
             raise serializers.ValidationError("End time must be after start time.")
         
+        if data['registration_start_time'] >= data['registration_end_time']:
+            raise serializers.ValidationError(
+                "Registration end time should be after registration start time."
+            )
+
         if data['location']:
             try:
                 coordinates = data['location'].get('coordinates')
@@ -52,39 +78,12 @@ class ScheduleSerializer(serializers.ModelSerializer):
 
 class EventSerializer(serializers.ModelSerializer):
     schedules = ScheduleSerializer(many=True)
-    seats_left = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
         fields = '__all__'
         read_only_fields = ['creator']
 
-    def get_seats_left(self, obj):
-       return obj.seats_left
-
-    def validate(self, data):
-        if data['registration_start_time'] >= data['registration_end_time']:
-            raise serializers.ValidationError(
-                "Registration end time should be after registration start time."
-            )
-
-        if data['type'] in ['HYBRID', 'ONSITE']:
-            location = any(
-                isinstance(schedule.get('location'), dict) and 'coordinates' in schedule['location']
-                for schedule in data['schedules']
-            )
-            if not location:
-                raise serializers.ValidationError(
-                    "Location with coordinates is required for hybrid and onsite events."
-                )
-
-        if data['type'] in ['HYBRID', 'ONLINE'] and not data['meeting_link']:
-            raise serializers.ValidationError(
-                "Meeting link is required for online and hybrid events."
-            )
-        
-        return data
-    
     def update(self, instance, validated_data):
 
         new_schedules = validated_data.pop('schedules', None)
@@ -114,7 +113,8 @@ class EventSerializer(serializers.ModelSerializer):
             schedule.is_active = False
             schedule.save()
 
-        verified_registrations = Registration.objects.filter(event=instance, is_verified=True)
+        active_schedules = Schedule.objects.filter(event=instance, is_active=True)
+        verified_registrations = Registration.objects.filter(schedule__in=active_schedules, is_verified=True)
         for registration in verified_registrations:
             send_update_event_email.delay(registration.email, instance.name, instance.id)   
 
@@ -141,19 +141,19 @@ class EventSerializer(serializers.ModelSerializer):
             Schedule.objects.create(**schedule, event=event, location=location)
 
         return event
-    
+ 
   
 class VerifyOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField(max_length=6)
-    event = serializers.IntegerField() 
+    schedule = serializers.IntegerField() 
 
     def validate(self, data):
 
         registration = get_object_or_404(
         Registration, 
         email=data.get('email'), 
-        event_id=data.get('event')
+        schedule_id=data.get('schedule')
         )
           
         if registration.otp != data.get('otp'):

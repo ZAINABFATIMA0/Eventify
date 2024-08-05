@@ -5,8 +5,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from .filters import Filters
-from .models import Category, Event
-from .serializer import CategorySerializer, EventSerializer, VerifyOTPSerializer
+from .models import Category, Event, Schedule
+from .serializer import CategorySerializer, EventSerializer, ScheduleSerializer, VerifyOTPSerializer
 from users.models import Registration
 from users.serializer import RegistrationSerializer, UnregistrationSerializer
 
@@ -50,6 +50,16 @@ def list_event(request):
     return response
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
+def list_schedules(request, pk):
+
+    event = get_object_or_404(Event, id=pk)
+    schedules = Schedule.objects.filter(event=event, is_active=True)
+    serializer = ScheduleSerializer(schedules, many=True)
+    
+    return Response(serializer.data)
+
+@api_view(['GET'])
 def list_category(request):
         categories = Category.objects.all()
         serializer = CategorySerializer(categories, many=True)
@@ -66,9 +76,10 @@ def get_event(request, pk):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def register_for_event(request, pk):
+def register_for_event_schedule(request, event_id, schedule_id):
 
-    request.data['event'] = pk
+    schedule = get_object_or_404(Schedule, id=schedule_id, event_id=event_id)
+    request.data['schedule'] = schedule_id
     serializer = RegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     serializer.save()
@@ -81,14 +92,14 @@ def register_for_event(request, pk):
 @permission_classes([AllowAny])
 def verify_registration_otp(request, pk):
     
-    request.data['event'] = pk
+    request.data['schedule'] = pk
     serializer = VerifyOTPSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
     registration = get_object_or_404(
         Registration, 
         email=serializer.validated_data['email'], 
-        event_id=pk
+        schedule_id=pk
     )
     registration.is_verified = True
     registration.otp = None
@@ -102,7 +113,7 @@ def verify_registration_otp(request, pk):
 @permission_classes([AllowAny])
 def unregister_from_event(request, pk):
 
-    request.data['event'] = pk
+    request.data['schedule'] = pk
     serializer = UnregistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     serializer.save()
@@ -113,14 +124,14 @@ def unregister_from_event(request, pk):
 @permission_classes([AllowAny])
 def verify_unregistration_otp(request, pk):
 
-    request.data['event'] = pk
+    request.data['schedule'] = pk
     serializer = VerifyOTPSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
     registration = get_object_or_404(
         Registration, 
         email=serializer.validated_data['email'], 
-        event_id=pk
+        schedule_id=pk
     )
     
     registration.is_verified = False

@@ -13,21 +13,33 @@ class CategoryAdmin(admin.ModelAdmin):
 class EventAdmin(admin.ModelAdmin):
     list_display = (
         'id',
-        'type',
         'name',
-        'registration_start_time',
-        'registration_end_time',
-        'seat_limit',
         'description',
-        'meeting_link',
         'category',
         'creator',
     )
-    list_filter = ('registration_start_time', 'registration_end_time')
     search_fields = ('name',)
 
 
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
-    list_display = ('id', 'start_time', 'end_time', 'location', 'event', 'is_active')
-    list_filter = ('start_time', 'end_time')
+    list_display = (
+        'id', 
+        'type',
+        'start_time', 
+        'end_time', 
+        'registration_start_time',
+        'registration_end_time',
+        'seat_limit',
+        'location',
+        'meeting_link',
+        'event', 
+        'is_active'
+    )
+    list_filter = (
+        'start_time', 
+        'end_time',
+        'registration_start_time',
+        'registration_end_time',
+        'seat_limit',
+    )
