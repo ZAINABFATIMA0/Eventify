@@ -57,6 +57,11 @@ Run the following command in your project's root directory:
 celery -A your_project_name worker --loglevel=info
 ```
 
+Start Celery Beat  by running the following command:
+```bash
+celery -A your_project_name beat --loglevel=info
+```
+
 ## Email Configuration
 
 ### Using a Gmail Account
