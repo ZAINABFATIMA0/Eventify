@@ -21,7 +21,7 @@ class RegistrationView(APIView):
             serializer.validated_data,
         )
     
-class EventListingsView(APIView):
+class EventListingView(APIView):
 
     def get(self, request):
         events = Event.objects.filter(creator=request.user)
@@ -33,7 +33,7 @@ class EventListingsView(APIView):
         
         return response
     
-class VerifiedRegistrationsView(APIView):
+class VerifiedRegistrationView(APIView):
 
     def get(self, request, event_id):
         event = get_object_or_404(Event, id=event_id, creator=request.user)
