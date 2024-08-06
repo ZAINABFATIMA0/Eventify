@@ -49,9 +49,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Registration is not allowed for this schedule as it is inactive."
             )
-
-        if data.get('schedule').seats_left <= 0:
-           raise serializers.ValidationError("Registration is full for this event.")
+        
+        if data.get('schedule').seats_left and data.get('schedule').seats_left <= 0:
+                raise serializers.ValidationError("Registration is full for this event.")
 
         if not (data.get('schedule').registration_start_time 
                 <= timezone.now() 
