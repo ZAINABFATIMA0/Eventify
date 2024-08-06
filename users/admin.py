@@ -29,7 +29,7 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Registration)
 class RegistrationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'email', 'event', 'is_verified')
+    list_display = ('id', 'email', 'schedule', 'is_verified')
     list_filter = (
         'email',
         'is_verified',

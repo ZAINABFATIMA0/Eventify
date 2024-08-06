@@ -45,19 +45,24 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
 
-        if data.get('event').seats_left <= 0:
-           raise serializers.ValidationError("Registration is full for this event.")
+        if not data.get('schedule').is_active:
+            raise serializers.ValidationError(
+                "Registration is not allowed for this schedule as it is inactive."
+            )
+        
+        if data.get('schedule').seats_left and data.get('schedule').seats_left <= 0:
+                raise serializers.ValidationError("Registration is full for this event.")
 
-        if not (data.get('event').registration_start_time 
+        if not (data.get('schedule').registration_start_time 
                 <= timezone.now() 
-                <= data.get('event').registration_end_time):
+                <= data.get('schedule').registration_end_time):
             raise serializers.ValidationError("Registration has not opened or is closed.")
         return data
     
     def create(self, validated_data):
         registration, created = Registration.objects.update_or_create(
             email=validated_data.get('email'),
-            event=validated_data.get('event'),
+            schedule=validated_data.get('schedule'),
             defaults={
                 'otp': random.randint(100000, 999999),
                 'otp_expiry': timezone.now() + timedelta(minutes=config.OTP_EXPIRY_TIME)
@@ -75,16 +80,16 @@ class VerifiedRegistrationsSerializer(serializers.ModelSerializer):
 
 class UnregistrationSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    event = serializers.IntegerField()
+    schedule = serializers.IntegerField()
 
     def validate(self, data):
         registration = get_object_or_404(
             Registration,
             email=data['email'],
-            event_id=data['event']
+            schedule_id=data['schedule']
         )
         grace_period_end = (
-            registration.event.registration_end_time 
+            registration.schedule.registration_end_time 
             - timedelta(days=config.UNREGISTRATION_GRACE_PERIOD)
         )
 
@@ -97,7 +102,7 @@ class UnregistrationSerializer(serializers.Serializer):
         registration = get_object_or_404(
             Registration,
             email=validated_data['email'],
-            event_id=validated_data['event']
+            schedule_id=validated_data['schedule']
         )
 
         registration.otp = random.randint(100000, 999999)

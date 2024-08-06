@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from .managers import CustomUserManager
 
+
 class User(AbstractUser):
     phone = models.CharField(max_length=32, unique=True, blank=True, null=True)
     email = models.EmailField(max_length=255, unique=True)
@@ -19,8 +20,8 @@ class Registration(models.Model):
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_expiry = models.DateTimeField(blank=True, null=True)
 
-    event = models.ForeignKey(
-        "events.Event", 
+    schedule = models.ForeignKey(
+        "events.Schedule", 
         related_name='registrations', 
         on_delete=models.CASCADE,
     )
