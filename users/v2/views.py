@@ -9,7 +9,7 @@ from users.models import Registration
 from users.serializer import UserSerializer, VerifiedRegistrationsSerializer
 
 
-class RegisterView(APIView):
+class RegistrationView(APIView):
 
     permission_classes = []
 
@@ -21,7 +21,7 @@ class RegisterView(APIView):
             serializer.validated_data,
         )
     
-class EventListingView(APIView):
+class EventListingsView(APIView):
 
     def get(self, request):
         events = Event.objects.filter(creator=request.user)
@@ -42,8 +42,14 @@ class VerifiedRegistrationsView(APIView):
         schedule_data = []
 
         for schedule in schedules:
-            verified_registrations = Registration.objects.filter(schedule=schedule, is_verified=True)
-            serializer = VerifiedRegistrationsSerializer(verified_registrations, many=True)
+            verified_registrations = Registration.objects.filter(
+                schedule=schedule, 
+                is_verified=True
+            )
+            serializer = VerifiedRegistrationsSerializer(
+                verified_registrations, 
+                many=True
+            )
             
             schedule_data.append({
                 'schedule': schedule.id,
