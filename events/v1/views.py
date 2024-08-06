@@ -4,9 +4,9 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from .filters import Filters
-from .models import Category, Event, Schedule
-from .serializer import CategorySerializer, EventSerializer, ScheduleSerializer, VerifyOTPSerializer
+from events.filters import Filters
+from events.models import Category, Event, Schedule
+from events.serializer import CategorySerializer, EventSerializer, ScheduleSerializer, VerifyOTPSerializer
 from users.models import Registration
 from users.serializer import RegistrationSerializer, UnregistrationSerializer
 
