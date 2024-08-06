@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 
+from celery.schedules import crontab
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -164,6 +165,13 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'users.User'
 
 CELERY_BROKER_URL = config('CELERY_BROKER_URL')
+
+CELERY_BEAT_SCHEDULE = {
+  'send_event_reminder_email': {
+      'task': 'events.tasks.send_event_reminder',
+      'schedule': crontab(minute='*/5'),
+  },
+}
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
