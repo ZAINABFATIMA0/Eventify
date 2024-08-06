@@ -9,7 +9,7 @@ from users.models import Registration
 from users.serializer import UserSerializer, VerifiedRegistrationsSerializer
 
 
-class RegistrationView(APIView):
+class RegistrationAPIView(APIView):
 
     permission_classes = []
 
@@ -21,19 +21,20 @@ class RegistrationView(APIView):
             serializer.validated_data,
         )
     
-class EventListingView(APIView):
+
+class EventListingAPIView(APIView):
 
     def get(self, request):
         events = Event.objects.filter(creator=request.user)
 
         paginator = PageNumberPagination()
         events_page = paginator.paginate_queryset(events, request)
+
         serializer = EventSerializer(events_page, many=True)
-        response = paginator.get_paginated_response(serializer.data)
-        
-        return response
+        return (paginator.get_paginated_response(serializer.data))
     
-class VerifiedRegistrationView(APIView):
+
+class EventDashboardAPIView(APIView):
 
     def get(self, request, event_id):
         event = get_object_or_404(Event, id=event_id, creator=request.user)
