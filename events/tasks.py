@@ -57,8 +57,7 @@ def send_update_event_email(email, name, id):
 
 @shared_task
 def send_event_reminder():
-    now = timezone.now()
-    reminder_time = now + timedelta(hours=24)
+    reminder_time = timezone.now() + timedelta(hours=24)
     schedules = Schedule.objects.filter(
       start_time__gt=reminder_time - timedelta(minutes=5),
       start_time__lt=reminder_time,
