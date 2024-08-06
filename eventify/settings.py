@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "communications",
     "django_extensions",
     "django_filters",
+    "django_celery_beat"
 ]
 
 CONSTANCE_CONFIG = {
@@ -164,6 +165,8 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'users.User'
 
 CELERY_BROKER_URL = config('CELERY_BROKER_URL')
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
