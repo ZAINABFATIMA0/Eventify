@@ -24,7 +24,7 @@ class EventListingAPIView(generics.ListAPIView):
 class EventDashboardAPIView(generics.RetrieveAPIView):
 
     def get_queryset(self):
-        return Event.objects.filter(creator=self.request.user).prefetch_related(
+        return Event.objects.filter(id=self.kwargs['pk'], creator=self.request.user).prefetch_related(
             'schedules__registrations'
         )
 
