@@ -12,6 +12,7 @@ from users.serializer import RegistrationSerializer, UnregistrationSerializer
 
 
 class EventDetailUpdateAPIView(APIView):
+    
     def get_permissions(self):
         return [AllowAny()] if self.request.method == 'GET' else [IsAuthenticated()]
 
