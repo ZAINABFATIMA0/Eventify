@@ -11,25 +11,7 @@ from users.models import Registration
 from users.serializer import RegistrationSerializer, UnregistrationSerializer
 
 
-class EventDetailUpdateAPIView(APIView):
-    
-    def get_permissions(self):
-        return [AllowAny()] if self.request.method == 'GET' else [IsAuthenticated()]
-
-    def get(self, request, event_id):
-        event = get_object_or_404(Event, id=event_id)
-        serializer = EventSerializer(event)
-        return Response(serializer.data)
-
-    def put(self, request, event_id):
-        event = get_object_or_404(Event, id=event_id, creator=request.user)
-        serializer = EventSerializer(event, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-    
-
-class EventCreationListingAPIView(APIView):
+class EventAPIView(APIView):
 
     def get_permissions(self):
         return [AllowAny()] if self.request.method == 'GET' else [IsAuthenticated()]
@@ -55,7 +37,25 @@ class EventCreationListingAPIView(APIView):
 
         serializer = EventSerializer(events_page, many=True)
         return (paginator.get_paginated_response(serializer.data))
+    
+    
+class EventDetailAPIView(APIView):
 
+    def get_permissions(self):
+        return [AllowAny()] if self.request.method == 'GET' else [IsAuthenticated()]
+
+    def get(self, request, event_id):
+        event = get_object_or_404(Event, id=event_id)
+        serializer = EventSerializer(event)
+        return Response(serializer.data)
+
+    def put(self, request, event_id):
+        event = get_object_or_404(Event, id=event_id, creator=request.user)
+        serializer = EventSerializer(event, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+    
 
 class ScheduleListingAPIView(APIView):
 

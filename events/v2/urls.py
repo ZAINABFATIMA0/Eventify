@@ -1,8 +1,8 @@
 from django.urls import path
 
 from .views import (
-    EventDetailUpdateAPIView,
-    EventCreationListingAPIView,
+    EventAPIView,
+    EventDetailAPIView,
     ScheduleListingAPIView, 
     CategoryListingAPIView, 
     EventScheduleRegistrationAPIView, 
@@ -12,8 +12,8 @@ from .views import (
 )
 
 urlpatterns = [
-    path('', EventCreationListingAPIView.as_view(), name='create_event'),
-    path('<int:event_id>/', EventDetailUpdateAPIView.as_view(), name='update_event'),
+    path('', EventAPIView.as_view(), name='create_event'),
+    path('<int:event_id>/', EventDetailAPIView.as_view(), name='update_event'),
     path('<int:event_id>/schedules/', ScheduleListingAPIView.as_view(), name='list_schedules'),
     path('schedule/<int:schedule_id>/register/', EventScheduleRegistrationAPIView.as_view(), name='register_for_event_schedule'),
     path('schedule/<int:schedule_id>/verify-registration-otp/', RegistrationOtpVerificationAPIView.as_view(), name='verify_registration_otp'),
