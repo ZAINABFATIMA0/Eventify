@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -10,7 +11,27 @@ from users.models import Registration
 from users.serializer import RegistrationSerializer, UnregistrationSerializer
 
 
-class EventCreationAPIView(APIView):
+class EventDetailUpdateAPIView(APIView):
+    def get_permissions(self):
+        return [AllowAny()] if self.request.method == 'GET' else [IsAuthenticated()]
+
+    def get(self, request, event_id):
+        event = get_object_or_404(Event, id=event_id)
+        serializer = EventSerializer(event)
+        return Response(serializer.data)
+
+    def put(self, request, event_id):
+        event = get_object_or_404(Event, id=event_id, creator=request.user)
+        serializer = EventSerializer(event, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+    
+
+class EventCreationListingAPIView(APIView):
+
+    def get_permissions(self):
+        return [AllowAny()] if self.request.method == 'GET' else [IsAuthenticated()]
 
     def post(self, request):
         serializer = EventSerializer(
@@ -20,26 +41,7 @@ class EventCreationAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
-
-
-class EventUpdationAPIView(APIView):
-
-    def put(self, request, event_id):
-
-        event = get_object_or_404(Event, id=event_id, creator=request.user)
-        serializer = EventSerializer(
-            event,
-            data=request.data, 
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-
-
-class EventListingAPIView(APIView):
-
-    permission_classes = []
-
+    
     def get(self, request):
         events = Event.objects.all()
 
@@ -70,16 +72,6 @@ class CategoryListingAPIView(APIView):
     def get(self, request):
         categories = Category.objects.all()
         serializer = CategorySerializer(categories, many=True)
-        return Response(serializer.data)
-
-
-class EventDetailAPIView(APIView):
-
-    permission_classes = []
-
-    def get(self, request, event_id):
-        event = get_object_or_404(Event, id=event_id)
-        serializer = EventSerializer(event)
         return Response(serializer.data)
 
 
