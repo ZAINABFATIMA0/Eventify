@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -22,10 +23,12 @@ class EventListingAPIView(generics.ListAPIView):
 
 
 class EventDashboardAPIView(generics.RetrieveAPIView):
-
-    def get_queryset(self):
-        return Event.objects.filter(id=self.kwargs['pk'], creator=self.request.user).prefetch_related(
-            'schedules__registrations'
+    
+    def get_object(self):
+        return get_object_or_404(
+            Event.objects.filter(id=self.kwargs['pk'], creator=self.request.user).prefetch_related(
+                'schedules__registrations'
+            )
         )
 
     def retrieve(self, request, *args, **kwargs):
