@@ -31,17 +31,17 @@ class EventDashboardAPIView(generics.RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
         event = self.get_object()
         schedules = event.schedules.filter(is_active=True)
-        schedule_data = []
+        schedule_insights = []
 
         for schedule in schedules:
             verified_registrations = schedule.registrations.filter(is_verified=True)
             serializer = VerifiedRegistrationsSerializer(verified_registrations, many=True)
             
-            schedule_data.append({
+            schedule_insights.append({
                 'schedule': schedule.id,
                 'seats_left': schedule.seats_left,
                 'registrations_count': verified_registrations.count(),
                 'registered_users': serializer.data,
             })
         
-        return Response(schedule_data)
+        return Response(schedule_insights)
